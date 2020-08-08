@@ -9,6 +9,8 @@ import addClass from 'tui-code-snippet/domUtil/addClass';
 import removeClass from 'tui-code-snippet/domUtil/removeClass';
 
 import domUtils from './utils/dom';
+import { replaceParagraphToList } from './utils/wwPasteMSList';
+
 import WwPasteContentHelper from './wwPasteContentHelper';
 import WwTablePasteHelper from './wwTablePasteHelper';
 
@@ -152,7 +154,11 @@ class WwClipboardManager {
     const { data: pasteData } = event;
     const clipboardContainer = document.createElement('div');
 
+    console.log(pasteData.fragment);
+
     clipboardContainer.appendChild(pasteData.fragment.cloneNode(true));
+
+    console.log(clipboardContainer.innerHTML);
 
     this._preparePaste(clipboardContainer);
     this._setTableBookmark(clipboardContainer);
@@ -253,7 +259,7 @@ class WwClipboardManager {
    * @private
    */
   _isFromMs(html) {
-    return /<p style="[^>]*mso-/.test(html);
+    return /style=".*mso-/.test(html);
   }
 
   /**
@@ -268,8 +274,6 @@ class WwClipboardManager {
       if (pTag.lastChild && pTag.lastChild.nodeName !== 'BR') {
         pTag.appendChild(document.createElement('br'));
       }
-
-      pTag.appendChild(document.createElement('br'));
     });
   }
 
@@ -279,10 +283,12 @@ class WwClipboardManager {
    * @private
    */
   _preparePaste(clipboardContainer) {
-    // When pasting text, the empty line processing differ our viewer and MS Office.
-    // In our viewer case, <p>aaa</p><p>bbb<p> have empty line becuase P tags have margin.
-    // In MS Office case, <p>aaa</p><p>bbb<p> do not have empty line becuase P tags means just one line.
-    if (!this._isFromMs(clipboardContainer.innerText)) {
+    if (this._isFromMs(clipboardContainer.innerHTML)) {
+      replaceParagraphToList(clipboardContainer);
+    } else {
+      // When pasting text, the empty line processing differ our viewer and MS Office.
+      // In our viewer case, <p>aaa</p><p>bbb<p> have empty line becuase P tags have margin.
+      // In MS Office case, <p>aaa</p><p>bbb<p> do not have empty line becuase P tags means just one line.
       this._preProcessPtag(clipboardContainer);
     }
 

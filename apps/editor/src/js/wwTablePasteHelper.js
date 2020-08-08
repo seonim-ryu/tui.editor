@@ -5,6 +5,7 @@
 import toArray from 'tui-code-snippet/collection/toArray';
 
 import domUtils from './utils/dom';
+import { replaceParagraphToList } from './utils/wwPasteMSList';
 import defaultSanitizer from './htmlSanitizer';
 
 /**
@@ -123,6 +124,22 @@ class WwTablePasteHelper {
     return domUtils.finalizeHtml(container);
   }
 
+  _replaceToMSList(html) {
+    const tempContainer = document.createElement('div');
+
+    tempContainer.innerHTML = html;
+
+    const container = document.createElement('div');
+
+    toArray(tempContainer.children).forEach(childNode => {
+      container.appendChild(childNode);
+    });
+
+    replaceParagraphToList(container);
+
+    return container.innerHTML;
+  }
+
   /**
    * Paste html of clipboard
    * @param {string} html - html
@@ -137,6 +154,10 @@ class WwTablePasteHelper {
 
     if (startFragmentIndex > -1 && endFragmentIndex > -1) {
       html = html.slice(startFragmentIndex + startFramgmentStr.length, endFragmentIndex);
+    }
+
+    if (/style=.*mso-/.test(html)) {
+      html = this._replaceToMSList(html);
     }
 
     // Wrap with <tr> if html contains dangling <td> tags

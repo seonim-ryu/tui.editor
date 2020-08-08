@@ -2,7 +2,7 @@
  * @fileoverview Implements squire extension
  * @author NHN FE Development Lab <dl_javascript@nhn.com>
  */
-import Squire from '@toast-ui/squire';
+import Squire from '@toast-ui/squire/build/squire-raw';
 import toArray from 'tui-code-snippet/collection/toArray';
 import isUndefined from 'tui-code-snippet/type/isUndefined';
 import isFunction from 'tui-code-snippet/type/isFunction';
