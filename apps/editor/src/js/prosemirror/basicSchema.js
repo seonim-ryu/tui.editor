@@ -69,7 +69,7 @@ export const basicSchema = {
         }
       ],
       toDOM() {
-        return ['ul'];
+        return ['ul', 0];
       }
     },
 

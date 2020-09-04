@@ -3,11 +3,12 @@ import { basicSchema } from './basicSchema';
 
 const gfmSchema = {
   nodes: {
-    taskItem: {
+    item: {
       content: '(paragraph | codeBlock | unorderedList | orderedList)*',
+      group: 'block',
       attrs: {
-        class: { default: 'task-list-item' },
-        task: { default: true },
+        class: { default: '' },
+        task: { default: false },
         checked: { default: false }
       },
       defining: true,
@@ -15,24 +16,30 @@ const gfmSchema = {
         {
           tag: 'li',
           getAttrs(dom) {
-            if (!dom.hasAttribute('data-task')) {
-              return false;
-            }
-
             return {
               class: dom.getAttribute('class'),
-              task: !!dom.getAttribute('data-task'),
+              task: dom.hasAttribute('data-task'),
               checked: !!dom.getAttribute('data-task-checked')
             };
           }
         }
       ],
       toDOM(node) {
+        if (!node.attrs.task) {
+          return ['li', 0];
+        }
+
+        const classNames = ['task-list-item'];
+
+        if (node.attrs.checked) {
+          classNames.push = ['checked'];
+        }
+
         return [
           'li',
           {
-            class: node.attrs.class,
-            'data-task': node.attrs.task ? true : null,
+            class: classNames.join(' '),
+            'data-task': node.attrs.task,
             'data-task-checked': node.attrs.checked
           },
           0
@@ -41,11 +48,12 @@ const gfmSchema = {
     },
 
     table: {
+      content: 'tableHead{1} tableBody+',
+      group: 'block',
       attrs: {
         rows: { default: 1 },
         columns: { default: 1 }
       },
-      content: '(tableHead{1} | tableBody+)',
       parseDOM: [{ tag: 'table' }],
       toDOM() {
         return ['table', 0];
@@ -53,7 +61,7 @@ const gfmSchema = {
     },
 
     tableHead: {
-      content: 'tableRow',
+      content: 'tableRow{1}',
       attr: {
         colums: { default: 1 }
       },
@@ -63,7 +71,7 @@ const gfmSchema = {
           getAttrs(dom) {
             const row = dom.querySelector('tr');
 
-            if (!row || !row.children.length) {
+            if (row && !row.children.length) {
               return false;
             }
 
@@ -79,7 +87,7 @@ const gfmSchema = {
     },
 
     tableBody: {
-      content: 'tableRow',
+      content: 'tableRow+',
       attr: {
         rows: { default: 1 },
         colums: { default: 1 }
@@ -91,7 +99,7 @@ const gfmSchema = {
             const rows = dom.querySelectorAll('tr');
             const [row] = rows;
 
-            if (!row || !row.children.length) {
+            if (!row.children.length) {
               return false;
             }
 
@@ -108,6 +116,7 @@ const gfmSchema = {
     },
 
     tableRow: {
+      content: 'tableCell+',
       attrs: { columns: { default: 1 } },
       parseDOM: [
         {
@@ -121,6 +130,7 @@ const gfmSchema = {
     },
 
     tableCell: {
+      content: 'text*',
       parseDOM: [{ tag: 'td' }],
       toDOM() {
         return ['td', 0];
