@@ -23,8 +23,8 @@
     </style>
   </head>
   <body>
-    <button id="btn-update-doc">update doc</button>
-    <button id="btn-empty-doc">empty doc</button>
+    <button id="btn-convert-html">html dom -> prosemirror doc</button>
+    <button id="btn-convert-text">markdown string -> prosemirror doc</button>
 
     <div id="editor"></div>
     <!-- Editor Dependencies -->
@@ -41,21 +41,21 @@
 
       const wwe = editor.getCurrentModeEditor();
 
-      const btnUpdateDoc = document.getElementById('btn-update-doc');
-      const btnEmptyDoc = document.getElementById('btn-empty-doc');
+      const btnConverHTML = document.getElementById('btn-convert-html');
+      const btnConvertText = document.getElementById('btn-convert-text');
 
       const content = document.createElement('div');
 
-      btnUpdateDoc.addEventListener('click', () => {
-        content.innerHTML = '<p>foo</p><p>bar</p><p>baz</p>';
+      btnConverHTML.addEventListener('click', () => {
+        content.innerHTML = ['<p>foo bar</p>'].join('');
 
         wwe.editorNew.updateDoc(content);
       });
 
-      btnEmptyDoc.addEventListener('click', () => {
-        content.innerHTML = '';
+      btnConvertText.addEventListener('click', () => {
+        const mdText = 'baz qux';
 
-        wwe.editorNew.updateDoc(content);
+        wwe.editorNew.updateDoc(mdText);
       });
     </script>
   </body>
