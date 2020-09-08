@@ -1,5 +1,7 @@
 import { Mark } from 'prosemirror-model';
 
+const INLINES = /text|inline|softbreak|thematicBreak|codeBlock|image/;
+
 function maybeMerge(a, b) {
   if (a.isText && b.isText && Mark.sameSet(a.marks, b.marks)) {
     return a.withText(a.text + b.text);
@@ -83,17 +85,26 @@ export default class MarkdownParseState {
       const { node, entering } = event;
       let { type } = node;
 
-      if (type !== 'text') {
+      if (type === 'list') {
+        const { listData } = node;
+
+        type = `${listData.type}List`;
+      }
+
+      if (!INLINES.test(type)) {
         if (entering) {
-          type = `${type}_open`;
+          type = `${type}Open`;
         } else {
-          type = `${type}_close`;
+          type = `${type}Close`;
         }
       }
 
+      const closeImage = type === 'image' && !entering;
+      const imageText = type === 'text' && node.parent.type === 'image';
+
       const handler = this.tokenHandlers[type];
 
-      if (handler) {
+      if (!closeImage && !imageText && handler) {
         handler(this, node);
       }
 

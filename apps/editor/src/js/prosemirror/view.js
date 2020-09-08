@@ -17,7 +17,15 @@ const baseStates = {
 
 export default class ProseMirrorView {
   constructor(container) {
-    this.view = this.createEditorView(container);
+    // @TODO remove logic to create wrapper element
+    const wrapper = document.createElement('div');
+
+    wrapper.className = 'tui-editor-contents';
+
+    container.removeChild(container.firstChild);
+    container.appendChild(wrapper);
+
+    this.view = this.createEditorView(wrapper);
   }
 
   createEditorView(container) {

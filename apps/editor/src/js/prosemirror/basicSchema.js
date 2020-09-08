@@ -6,22 +6,13 @@ export const basicSchema = {
       content: 'block+'
     },
 
-    // block group
-
+    // block
     paragraph: {
       content: 'inline*',
       group: 'block',
       parseDOM: [{ tag: 'p' }],
       toDOM() {
         return ['p', 0];
-      }
-    },
-
-    thematicBreak: {
-      group: 'block',
-      parseDOM: [{ tag: 'hr' }],
-      toDOM() {
-        return ['div', ['hr']];
       }
     },
 
@@ -46,21 +37,38 @@ export const basicSchema = {
     codeBlock: {
       content: 'text*',
       group: 'block',
+      attrs: {
+        class: { default: null },
+        language: { default: null }
+      },
       code: true,
       defining: true,
       marks: '',
       parseDOM: [
         {
           tag: 'pre',
-          preserveWhitespace: 'full'
+          preserveWhitespace: 'full',
+          getAttrs(dom) {
+            const className = dom.getAttribute('class');
+            const language = className.split('lang-');
+
+            return {
+              class: className,
+              language
+            };
+          }
         }
       ],
-      toDOM() {
-        return ['pre', ['code', 0]];
+      toDOM(node) {
+        return [
+          'pre',
+          { class: node.attrs.class || null },
+          ['code', { 'data-language': node.attrs.language || null }, 0]
+        ];
       }
     },
 
-    unorderedList: {
+    bulletList: {
       content: 'item+',
       group: 'block',
       parseDOM: [
@@ -81,8 +89,10 @@ export const basicSchema = {
         {
           tag: 'ol',
           getAttrs(dom) {
+            const start = parseInt(dom.getAttribute('start'), 10);
+
             return {
-              order: dom.hasAttribute('start') ? Number(dom.getAttribute('start')) : 1
+              order: dom.hasAttribute('start') ? start : 1
             };
           }
         }
@@ -99,7 +109,7 @@ export const basicSchema = {
     },
 
     item: {
-      content: '(paragraph | codeBlock | unorderedList | orderedList)*',
+      content: '(paragraph | codeBlock | bulletList | orderedList)*',
       defining: true,
       parseDOM: [{ tag: 'li' }],
       toDOM() {
@@ -107,7 +117,7 @@ export const basicSchema = {
       }
     },
 
-    blockquote: {
+    blockQuote: {
       content: 'block+',
       group: 'block',
       parseDOM: [{ tag: 'blockquote' }],
@@ -116,18 +126,27 @@ export const basicSchema = {
       }
     },
 
-    // inline group
+    // block - empty element
+    thematicBreak: {
+      group: 'block',
+      parseDOM: [{ tag: 'hr' }],
+      toDOM() {
+        return ['div', ['hr']];
+      }
+    },
 
+    // inline
     text: {
       group: 'inline'
     },
 
+    // inline - empty element
     image: {
       inline: true,
       attrs: {
         src: {},
-        alt: { default: null },
-        title: { default: null }
+        title: { default: null },
+        alt: { default: null }
       },
       group: 'inline',
       draggable: true,
@@ -137,8 +156,8 @@ export const basicSchema = {
           getAttrs(dom) {
             return {
               src: dom.getAttribute('src'),
-              alt: dom.getAttribute('alt'),
-              title: dom.getAttribute('title')
+              title: dom.getAttribute('title'),
+              alt: dom.getAttribute('alt')
             };
           }
         }
@@ -184,7 +203,10 @@ export const basicSchema = {
         {
           tag: 'a[href]',
           getAttrs(dom) {
-            return { href: dom.getAttribute('href'), title: dom.getAttribute('title') };
+            return {
+              href: dom.getAttribute('href'),
+              title: dom.getAttribute('title') || null
+            };
           }
         }
       ],

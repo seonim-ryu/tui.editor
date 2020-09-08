@@ -1,4 +1,5 @@
 import MarkdownParseState from './markdownParserState';
+import { basicNodeMap, gfmNodeMap } from './nodeMap';
 
 function attrs(spec, token) {
   let attributes;
@@ -15,7 +16,7 @@ function attrs(spec, token) {
 }
 
 function noCloseToken(spec, type) {
-  return spec.noCloseToken || type === 'code_inline' || type === 'code_block' || type === 'fence';
+  return spec.noCloseToken || type === 'code' || type === 'codeBlock';
 }
 
 function withoutTrailingNewline(str) {
@@ -36,14 +37,14 @@ function tokenHandlers(schema, tokens) {
       if (noCloseToken(spec, type)) {
         handlers[type] = (state, tok) => {
           state.openNode(nodeType, attrs(spec, tok));
-          state.addText(withoutTrailingNewline(tok.content));
+          state.addText(withoutTrailingNewline(tok.literal));
           state.closeNode();
         };
       } else {
-        handlers[`${type}_open`] = (state, tok) => {
+        handlers[`${type}Open`] = (state, tok) => {
           state.openNode(nodeType, attrs(spec, tok));
         };
-        handlers[`${type}_close`] = state => state.closeNode();
+        handlers[`${type}Close`] = state => state.closeNode();
       }
     } else if (spec.node) {
       const nodeType = schema.nodeType(spec.node);
@@ -55,37 +56,33 @@ function tokenHandlers(schema, tokens) {
       if (noCloseToken(spec, type)) {
         handlers[type] = (state, tok) => {
           state.openMark(markType.create(attrs(spec, tok)));
-          state.addText(withoutTrailingNewline(tok.content));
+          state.addText(withoutTrailingNewline(tok.literal));
           state.closeMark(markType);
         };
       } else {
-        handlers[`${type}_open`] = (state, tok) =>
-          state.openMark(markType.create(attrs(spec, tok)));
-        handlers[`${type}_close`] = state => state.closeMark(markType);
+        handlers[`${type}Open`] = (state, tok) => state.openMark(markType.create(attrs(spec, tok)));
+        handlers[`${type}Close`] = state => state.closeMark(markType);
       }
     } else if (spec.ignore) {
       if (noCloseToken(spec, type)) {
         handlers[type] = noOp;
       } else {
-        handlers[`${type}_open`] = noOp;
-        handlers[`${type}_close`] = noOp;
+        handlers[`${type}Open`] = noOp;
+        handlers[`${type}Close`] = noOp;
       }
     }
   });
 
   handlers.text = (state, tok) => state.addText(tok.literal);
-  handlers.inline = (state, tok) => state.parseTokens(tok.children);
+  handlers.inline = (state, tok) => state.parseNodes(tok);
   handlers.softbreak = handlers.softbreak || (state => state.addText('\n'));
 
   return handlers;
 }
 
-const tokenMap = {
-  paragraph: { block: 'paragraph' }
-};
-
 export function convertMdNodeToDoc(schema, mdNode) {
-  const handlers = tokenHandlers(schema, tokenMap);
+  const nodeMap = { ...basicNodeMap, ...gfmNodeMap };
+  const handlers = tokenHandlers(schema, nodeMap);
 
   // @TODO move to editor's convertor
   const state = new MarkdownParseState(schema, handlers);

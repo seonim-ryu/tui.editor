@@ -4,10 +4,10 @@ import { basicSchema } from './basicSchema';
 const gfmSchema = {
   nodes: {
     item: {
-      content: '(paragraph | codeBlock | unorderedList | orderedList)*',
+      content: '(paragraph | codeBlock | bulletList | orderedList)*',
       group: 'block',
       attrs: {
-        class: { default: '' },
+        class: { default: null },
         task: { default: false },
         checked: { default: false }
       },
@@ -32,7 +32,7 @@ const gfmSchema = {
         const classNames = ['task-list-item'];
 
         if (node.attrs.checked) {
-          classNames.push = ['checked'];
+          classNames.push('checked');
         }
 
         return [
