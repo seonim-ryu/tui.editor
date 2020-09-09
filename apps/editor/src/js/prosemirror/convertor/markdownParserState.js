@@ -1,6 +1,6 @@
 import { Mark } from 'prosemirror-model';
 
-const INLINES = /text|inline|softbreak|thematicBreak|codeBlock|image/;
+const INLINES = /text|inline|softbreak|thematicBreak|codeBlock|image|code/;
 
 function maybeMerge(a, b) {
   if (a.isText && b.isText && Mark.sameSet(a.marks, b.marks)) {
@@ -89,6 +89,14 @@ export default class MarkdownParseState {
         const { listData } = node;
 
         type = `${listData.type}List`;
+      }
+
+      if (type === 'tableCell') {
+        const parentType = node.parent.parent && node.parent.parent.type;
+
+        if (parentType === 'tableHead' || parentType === 'tableBody') {
+          type = `${parentType}Cell`;
+        }
       }
 
       if (!INLINES.test(type)) {

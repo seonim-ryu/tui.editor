@@ -86,7 +86,9 @@ export const gfmNodeMap = {
 
   tableRow: { block: 'tableRow' },
 
-  tableCell: { block: 'tableCell' },
+  tableHeadCell: { block: 'tableHeadCell' },
+
+  tableBodyCell: { block: 'tableBodyCell' },
 
   // mark
   strike: { mark: 'strike' }

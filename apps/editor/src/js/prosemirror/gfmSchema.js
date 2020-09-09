@@ -116,7 +116,7 @@ const gfmSchema = {
     },
 
     tableRow: {
-      content: 'tableCell+',
+      content: '(tableHeadCell | tableBodyCell)+',
       attrs: { columns: { default: 1 } },
       parseDOM: [
         {
@@ -129,7 +129,15 @@ const gfmSchema = {
       }
     },
 
-    tableCell: {
+    tableHeadCell: {
+      content: 'text*',
+      parseDOM: [{ tag: 'th' }],
+      toDOM() {
+        return ['th', 0];
+      }
+    },
+
+    tableBodyCell: {
       content: 'text*',
       parseDOM: [{ tag: 'td' }],
       toDOM() {
