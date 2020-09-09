@@ -30,8 +30,8 @@
   color: #222;
 }
 
-.tui-editor-contents > h1:first-of-type,
-.tui-editor-contents > div > div:first-of-type h1 {
+.tui-editor-contents h1:first-of-type,
+.tui-editor-contents div > div:first-of-type h1 {
   margin-top: 14px;
 }
 

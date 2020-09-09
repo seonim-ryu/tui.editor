@@ -30,7 +30,8 @@ import WwTextObject from './wwTextObject';
 import ComponentManager from './componentManager';
 import CodeBlockGadget from './ui/codeBlockGadget';
 
-import ProseMirrorView from './prosemirror/view';
+// v3.0
+import WwEditor from './wysiwyg/editor';
 
 const keyMapper = KeyMapper.getSharedInstance();
 
@@ -103,7 +104,7 @@ class WysiwygEditor {
     });
 
     // @TODO remove for v3.0 prototyping
-    this.editorNew = new ProseMirrorView(this.editorContainerEl);
+    this.editorNew = new WwEditor(this.editorContainerEl);
   }
 
   /**
@@ -810,13 +811,11 @@ class WysiwygEditor {
 
   /**
    * Set value to wysiwyg editor
-   * @param {string} html - HTML text
+   * @param {Node} wwModel - prosemirror model
    * @param {boolean} [cursorToEnd=true] - move cursor to contents end
    */
-  setValue(html, cursorToEnd = true) {
-    html = this.eventManager.emitReduce('wysiwygSetValueBefore', html);
-
-    this.editor.setHTML(html);
+  setValue(wwModel, cursorToEnd = true) {
+    this.editorNew.setValue(wwModel);
 
     this.eventManager.emit('wysiwygSetValueAfter', this);
     this.eventManager.emit('contentChangedFromWysiwyg', this);

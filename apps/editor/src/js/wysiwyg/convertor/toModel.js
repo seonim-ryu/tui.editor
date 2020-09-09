@@ -83,8 +83,6 @@ function tokenHandlers(schema, tokens) {
 export function convertMdNodeToDoc(schema, mdNode) {
   const nodeMap = { ...basicNodeMap, ...gfmNodeMap };
   const handlers = tokenHandlers(schema, nodeMap);
-
-  // @TODO move to editor's convertor
   const state = new MarkdownParseState(schema, handlers);
 
   state.parseNodes(mdNode);

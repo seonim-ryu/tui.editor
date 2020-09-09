@@ -8,6 +8,10 @@ import { Parser, createRenderHTML } from '@toast-ui/toastmark';
 import { getHTMLRenderConvertors } from './htmlRenderConvertors';
 import domUtils from './utils/dom';
 
+// v3.0
+import { DOMParser } from 'prosemirror-model';
+import { convertMdNodeToDoc } from './wysiwyg/convertor/toModel';
+
 // This regular expression refere markdownIt.
 // https://github.com/markdown-it/markdown-it/blob/master/lib/common/html_re.js
 const attrName = '[a-zA-Z_:][a-zA-Z0-9:._-]*';
@@ -117,6 +121,23 @@ class Convertor {
     html = this.eventManager.emitReduce('convertorAfterMarkdownToHtmlConverted', html);
 
     return html;
+  }
+
+  /**
+   * @param {HTMLElement|string} content
+   */
+  toWysiwygModel(content, schema) {
+    let doc;
+
+    if (typeof content === 'string') {
+      const mdNode = new Parser().parse(content);
+
+      doc = convertMdNodeToDoc(schema, mdNode);
+    } else {
+      doc = DOMParser.fromSchema(schema).parse(content);
+    }
+
+    return doc;
   }
 
   /**

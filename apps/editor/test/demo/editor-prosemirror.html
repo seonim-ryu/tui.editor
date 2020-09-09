@@ -11,6 +11,10 @@
     <!-- Editor -->
     <link rel="stylesheet" href="../../dist/toastui-editor.css" />
     <style type="text/css">
+      .te-ww-container .tui-editor-contents:first-child {
+        display: none;
+      }
+
       .ProseMirror {
         height: 100%;
         outline: none;
@@ -18,33 +22,13 @@
     </style>
   </head>
   <body>
-    <button id="btn-convert-html">html dom -> prosemirror doc</button>
-    <button id="btn-convert-text">markdown string -> prosemirror doc</button>
-    <br />
-    <textarea id="content" style="width:300px;height:100px"></textarea>
-
     <div id="editor"></div>
     <!-- Editor Dependencies -->
     <script src="../../node_modules/codemirror/lib/codemirror.js"></script>
     <!-- Editor -->
     <script src="../../dist/toastui-editor.js"></script>
     <script class="code-js">
-      const editor = new toastui.Editor({
-        el: document.querySelector('#editor'),
-        previewStyle: 'vertical',
-        height: '400px',
-        initialEditType: 'wysiwyg'
-      });
-
-      const wwe = editor.getCurrentModeEditor();
-
-      const btnConverHTML = document.getElementById('btn-convert-html');
-      const btnConvertText = document.getElementById('btn-convert-text');
-      const contentInput = document.getElementById('content');
-
-      const contentEl = document.createElement('div');
-
-      contentInput.value = [
+      const content = [
         '![image](https://uicdn.toast.com/toastui/img/tui-editor-bi.png)',
         '',
         '# Awesome Editor!',
@@ -84,18 +68,11 @@
         '>    3. [ ] Ember'
       ].join('\n');
 
-      btnConverHTML.addEventListener('click', () => {
-        const content = document.createElement('div');
-
-        content.innerHTML = contentInput.value;
-
-        wwe.editorNew.updateDoc(content);
-      });
-
-      btnConvertText.addEventListener('click', () => {
-        const mdText = contentInput.value;
-
-        wwe.editorNew.updateDoc(mdText);
+      const editor = new toastui.Editor({
+        el: document.querySelector('#editor'),
+        previewStyle: 'vertical',
+        height: '400px',
+        initialValue: content
       });
     </script>
   </body>

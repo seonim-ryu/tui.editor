@@ -673,7 +673,12 @@ class ToastUIEditor {
 
     if (this.isWysiwygMode()) {
       this.layout.switchToWYSIWYG();
-      this.wwEditor.setValue(this.convertor.toHTML(this.mdEditor.getValue()), !isWithoutFocus);
+
+      const markdown = this.mdEditor.getValue();
+      const schema = this.wwEditor.editorNew.getSchema();
+      const wwModel = this.convertor.toWysiwygModel(markdown, schema);
+
+      this.wwEditor.editorNew.setValue(wwModel);
       this.eventManager.emit('changeModeToWysiwyg');
     } else {
       this.layout.switchToMarkdown();

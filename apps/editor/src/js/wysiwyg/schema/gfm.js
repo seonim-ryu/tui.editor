@@ -1,5 +1,5 @@
 import { Schema } from 'prosemirror-model';
-import { basicSchema } from './basicSchema';
+import { basicSchema } from './basic';
 
 const gfmSchema = {
   nodes: {
