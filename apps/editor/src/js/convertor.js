@@ -10,7 +10,7 @@ import domUtils from './utils/dom';
 
 // v3.0
 import { DOMParser } from 'prosemirror-model';
-import { convertMdNodeToDoc } from './wysiwyg/convertor/toModel';
+import { convertMdNodeToDoc } from './convertor/toWysiwygModel';
 
 // This regular expression refere markdownIt.
 // https://github.com/markdown-it/markdown-it/blob/master/lib/common/html_re.js
@@ -124,17 +124,17 @@ class Convertor {
   }
 
   /**
-   * @param {HTMLElement|string} content
+   * @param {HTMLElement|ToastMark} content - content to convert to prosemirror model
+   * @param {Schema} schema - prosemirror schema instance
+   * @param {boolean} isDom - whether content is dom or not
    */
-  toWysiwygModel(content, schema) {
+  toWysiwygModel(content, schema, isDom) {
     let doc;
 
-    if (typeof content === 'string') {
-      const mdNode = new Parser().parse(content);
-
-      doc = convertMdNodeToDoc(schema, mdNode);
-    } else {
+    if (isDom) {
       doc = DOMParser.fromSchema(schema).parse(content);
+    } else {
+      doc = convertMdNodeToDoc(schema, content);
     }
 
     return doc;

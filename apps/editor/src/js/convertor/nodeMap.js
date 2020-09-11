@@ -1,4 +1,4 @@
-export const basicNodeMap = {
+export const nodeMap = {
   // block
   paragraph: { block: 'paragraph' },
 
@@ -14,7 +14,7 @@ export const basicNodeMap = {
     getAttrs: node => {
       return { language: node.info || '' };
     },
-    noCloseToken: true
+    unclosedNode: true
   },
 
   bulletList: { block: 'bulletList' },
@@ -26,9 +26,28 @@ export const basicNodeMap = {
     }
   },
 
-  item: { block: 'item' },
+  item: {
+    block: 'item',
+    getAttrs: node => {
+      const { task, checked } = node.listData;
+
+      return { task, checked };
+    }
+  },
 
   blockQuote: { block: 'blockQuote' },
+
+  table: { block: 'table' },
+
+  tableHead: { block: 'tableHead' },
+
+  tableBody: { block: 'tableBody' },
+
+  tableRow: { block: 'tableRow' },
+
+  tableHeadCell: { block: 'tableHeadCell' },
+
+  tableBodyCell: { block: 'tableBodyCell' },
 
   // block - empty element
   thematicBreak: { node: 'thematicBreak' },
@@ -44,13 +63,16 @@ export const basicNodeMap = {
         title: title || null,
         alt: firstChild && firstChild.literal
       };
-    }
+    },
+    skipChilren: true
   },
 
   // mark
   strong: { mark: 'strong' },
 
   emph: { mark: 'emph' },
+
+  strike: { mark: 'strike' },
 
   link: {
     mark: 'link',
@@ -64,32 +86,5 @@ export const basicNodeMap = {
     }
   },
 
-  code: { mark: 'code', noCloseToken: true }
-};
-
-export const gfmNodeMap = {
-  // block
-  item: {
-    block: 'item',
-    getAttrs: node => {
-      const { task, checked } = node.listData;
-
-      return { task, checked };
-    }
-  },
-
-  table: { block: 'table' },
-
-  tableHead: { block: 'tableHead' },
-
-  tableBody: { block: 'tableBody' },
-
-  tableRow: { block: 'tableRow' },
-
-  tableHeadCell: { block: 'tableHeadCell' },
-
-  tableBodyCell: { block: 'tableBodyCell' },
-
-  // mark
-  strike: { mark: 'strike' }
+  code: { mark: 'code', unclosedNode: true }
 };

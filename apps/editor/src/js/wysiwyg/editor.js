@@ -20,8 +20,7 @@ const baseStates = {
   ]
 };
 
-// @TODO WwEditor -> WysiwygEditor
-export default class WwEditor {
+export default class WysiwygEditor {
   constructor(container) {
     this.view = this.createEditorView(container);
   }
@@ -39,7 +38,24 @@ export default class WwEditor {
     this.view.updateState(newState);
   }
 
+  /**
+   * @TODO add logic to set min-eight value
+   */
+  setMinHeight() {}
+
+  /**
+   * @TODO change return value to prosemirror model
+   */
+  getValue() {
+    return '';
+  }
+
   getSchema() {
     return this.view.state.schema;
   }
+
+  /**
+   * @TODO add logic to focus editor element
+   */
+  focus() {}
 }

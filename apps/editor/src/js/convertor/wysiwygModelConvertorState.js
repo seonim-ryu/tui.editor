@@ -1,7 +1,5 @@
 import { Mark } from 'prosemirror-model';
 
-const NO_PAIR_NODE = /thematicBreak|codeBlock|text|inline|softbreak|image|code/;
-
 function maybeMerge(a, b) {
   if (a.isText && b.isText && Mark.sameSet(a.marks, b.marks)) {
     return a.withText(a.text + b.text);
@@ -10,12 +8,12 @@ function maybeMerge(a, b) {
   return false;
 }
 
-export default class MarkdownParseState {
-  constructor(schema, tokenHandlers) {
+export default class WysiwygModelConvertorState {
+  constructor(schema, nodeHandlers) {
     this.schema = schema;
     this.stack = [{ type: schema.topNodeType, content: [] }];
     this.marks = Mark.none;
-    this.tokenHandlers = tokenHandlers;
+    this.nodeHandlers = nodeHandlers;
   }
 
   top() {
@@ -77,41 +75,47 @@ export default class MarkdownParseState {
     return this.addNode(type, attrs, content);
   }
 
-  parseNodes(mdNode) {
+  getNodeHandler(node) {
+    let { type } = node;
+
+    if (type === 'list') {
+      const { listData } = node;
+
+      type = `${listData.type}List`;
+    } else if (type === 'tableCell') {
+      const parentType = node.parent.parent && node.parent.parent.type;
+
+      if (parentType === 'tableHead' || parentType === 'tableBody') {
+        type = `${parentType}Cell`;
+      }
+    }
+
+    return this.nodeHandlers[type];
+  }
+
+  convertNodes(mdNode) {
     const walker = mdNode.walker();
     let event = walker.next();
 
     while (event) {
       const { node, entering } = event;
-      let { type } = node;
+      const handler = this.getNodeHandler(node);
 
-      if (type === 'list') {
-        const { listData } = node;
-
-        type = `${listData.type}List`;
-      } else if (type === 'tableCell') {
-        const parentType = node.parent.parent && node.parent.parent.type;
-
-        if (parentType === 'tableHead' || parentType === 'tableBody') {
-          type = `${parentType}Cell`;
+      let skipped = false;
+      const context = {
+        entering,
+        skipChildren: () => {
+          skipped = true;
         }
+      };
+
+      if (handler) {
+        handler(this, node, context);
       }
 
-      if (!NO_PAIR_NODE.test(type)) {
-        if (entering) {
-          type = `${type}Open`;
-        } else {
-          type = `${type}Close`;
-        }
-      }
-
-      const closeImage = type === 'image' && !entering;
-      const imageText = type === 'text' && node.parent.type === 'image';
-
-      const handler = this.tokenHandlers[type];
-
-      if (!closeImage && !imageText && handler) {
-        handler(this, node);
+      if (skipped) {
+        walker.resumeAt(node, false);
+        walker.next();
       }
 
       event = walker.next();

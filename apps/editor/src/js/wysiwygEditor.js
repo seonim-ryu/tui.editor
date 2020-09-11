@@ -30,9 +30,6 @@ import WwTextObject from './wwTextObject';
 import ComponentManager from './componentManager';
 import CodeBlockGadget from './ui/codeBlockGadget';
 
-// v3.0
-import WwEditor from './wysiwyg/editor';
-
 const keyMapper = KeyMapper.getSharedInstance();
 
 const FIND_EMPTY_LINE = /<([a-z]+|h\d)>(<br>|<br \/>)<\/\1>/gi;
@@ -102,9 +99,6 @@ class WysiwygEditor {
       container: this.editorContainerEl,
       wysiwygEditor: this
     });
-
-    // @TODO remove for v3.0 prototyping
-    this.editorNew = new WwEditor(this.editorContainerEl);
   }
 
   /**
@@ -811,11 +805,13 @@ class WysiwygEditor {
 
   /**
    * Set value to wysiwyg editor
-   * @param {Node} wwModel - prosemirror model
+   * @param {string} html - HTML text
    * @param {boolean} [cursorToEnd=true] - move cursor to contents end
    */
-  setValue(wwModel, cursorToEnd = true) {
-    this.editorNew.setValue(wwModel);
+  setValue(html, cursorToEnd = true) {
+    html = this.eventManager.emitReduce('wysiwygSetValueBefore', html);
+
+    this.editor.setHTML(html);
 
     this.eventManager.emit('wysiwygSetValueAfter', this);
     this.eventManager.emit('contentChangedFromWysiwyg', this);
