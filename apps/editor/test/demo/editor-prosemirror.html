@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8" />
+    <title>Demo</title>
+    <!-- Editor's Dependencies -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.33.0/codemirror.css"
+    />
+    <!-- Editor -->
+    <link rel="stylesheet" href="../../dist/cdn/toastui-editor.css" />
+    <style type="text/css">
+      .ProseMirror {
+        height: 100%;
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="editor"></div>
+    <!-- Editor Dependencies -->
+    <!-- Editor -->
+    <script src="../../dist/cdn/toastui-editor-all.js"></script>
+    <script class="code-js">
+      const content = [
+        '![image](https://uicdn.toast.com/toastui/img/tui-editor-bi.png)',
+        '',
+        '# Awesome Editor!',
+        '',
+        'It has been _released as opensource in 2018_ and has ~~continually~~ evolved to **receive 10k GitHub ⭐️ Stars**.',
+        '',
+        '## Create Instance',
+        '',
+        'You can create an instance with the following code and use `getHtml()` and `getMarkdown()` of the [Editor](https://github.com/nhn/tui.editor).',
+        '',
+        '```js',
+        'const editor = new Editor(options);',
+        '```',
+        '',
+        '> See the table below for default options',
+        '> > More API information can be found in the document',
+        '',
+        '| name | type | description |',
+        '| --- | --- | --- |',
+        '| el | `HTMLElement` | container element |',
+        '',
+        '## Features',
+        '',
+        '* CommonMark + GFM Specifications',
+        '   * Live Preview',
+        '   * Scroll Sync',
+        '   * Auto Indent',
+        '   * Syntax Highlight',
+        '        1. Markdown',
+        '        2. Preview',
+        '',
+        '## Support Wrappers',
+        '',
+        '> * Wrappers',
+        '>    1. [x] React',
+        '>    2. [x] Vue',
+        '>    3. [ ] Ember'
+      ].join('\n');
+
+      const editor = new toastui.Editor({
+        el: document.querySelector('#editor'),
+        previewStyle: 'vertical',
+        height: '400px',
+        initialValue: content
+      });
+    </script>
+  </body>
+</html>

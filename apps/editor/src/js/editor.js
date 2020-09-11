@@ -15,7 +15,6 @@ import { sendHostName, sanitizeLinkAttribute } from './utils/common';
 
 import MarkdownEditor from './markdownEditor';
 import MarkdownPreview from './mdPreview';
-import WysiwygEditor from './wysiwygEditor';
 import Layout from './layout';
 import EventManager from './eventManager';
 import CommandManager from './commandManager';
@@ -80,6 +79,9 @@ import wwOutdent from './wysiwygCommands/outdent';
 import wwTask from './wysiwygCommands/task';
 import wwCode from './wysiwygCommands/code';
 import wwCodeBlock from './wysiwygCommands/codeBlock';
+
+// v3.0
+import WysiwygEditor from './wysiwyg/editor';
 
 import { ToastMark } from '@toast-ui/toastmark';
 import { register } from './scroll/sync';
@@ -260,10 +262,7 @@ class ToastUIEditor {
       }
     );
 
-    this.wwEditor = WysiwygEditor.factory(this.layout.getWwEditorContainerEl(), this.eventManager, {
-      sanitizer,
-      linkAttribute
-    });
+    this.wwEditor = new WysiwygEditor(this.layout.getWwEditorContainerEl());
 
     this.toMarkOptions = {
       gfm: true,
@@ -673,7 +672,13 @@ class ToastUIEditor {
 
     if (this.isWysiwygMode()) {
       this.layout.switchToWYSIWYG();
-      this.wwEditor.setValue(this.convertor.toHTML(this.mdEditor.getValue()), !isWithoutFocus);
+
+      const mdNode = this.toastMark.getRootNode();
+      const schema = this.wwEditor.getSchema();
+      const wwModel = this.convertor.toWysiwygModel(mdNode, schema);
+
+      this.wwEditor.setValue(wwModel);
+
       this.eventManager.emit('changeModeToWysiwyg');
     } else {
       this.layout.switchToMarkdown();
