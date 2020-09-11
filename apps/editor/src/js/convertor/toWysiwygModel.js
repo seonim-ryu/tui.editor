@@ -1,4 +1,4 @@
-import MarkdownParseState from './wysiwygModelConvertorState';
+import WysiwygModelConvertorState from './wysiwygModelConvertorState';
 import { nodeMap } from './nodeMap';
 
 function getAttrs(spec, node) {
@@ -14,13 +14,6 @@ function getAttrs(spec, node) {
 
   return attributes;
 }
-function isUnclosedNode(spec, type) {
-  return spec.unclosedNode || type === 'code' || type === 'codeBlock';
-}
-
-function isSkipChildrenNode(spec, type) {
-  return spec.skipChilren || type === 'image';
-}
 
 function getTextWithoutTrailingNewline(str) {
   return str[str.length - 1] === '\n' ? str.slice(0, str.length - 1) : str;
@@ -35,7 +28,7 @@ function createNodeHandlers(schema, nodeTypes) {
     if (spec.block) {
       const nodeType = schema.nodeType(spec.block);
 
-      if (isUnclosedNode(spec, type)) {
+      if (spec.unclosedNode) {
         handlers[type] = (state, node) => {
           state.openNode(nodeType, getAttrs(spec, node));
           state.addText(getTextWithoutTrailingNewline(node.literal));
@@ -54,7 +47,7 @@ function createNodeHandlers(schema, nodeTypes) {
       const nodeType = schema.nodeType(spec.node);
 
       handlers[type] = (state, node, { entering, skipChildren }) => {
-        if (isSkipChildrenNode(spec, type) && entering) {
+        if (spec.skipChilren && entering) {
           skipChildren();
         }
 
@@ -63,7 +56,7 @@ function createNodeHandlers(schema, nodeTypes) {
     } else if (spec.mark) {
       const markType = schema.marks[spec.mark];
 
-      if (isUnclosedNode(spec, type)) {
+      if (spec.unclosedNode) {
         handlers[type] = (state, node) => {
           state.openMark(markType.create(getAttrs(spec, node)));
           state.addText(getTextWithoutTrailingNewline(node.literal));
@@ -90,7 +83,7 @@ function createNodeHandlers(schema, nodeTypes) {
 
 export function convertMdNodeToDoc(schema, mdNode) {
   const handlers = createNodeHandlers(schema, nodeMap);
-  const state = new MarkdownParseState(schema, handlers);
+  const state = new WysiwygModelConvertorState(schema, handlers);
 
   state.convertNodes(mdNode);
 
