@@ -11,9 +11,9 @@ function maybeMerge(a, b) {
 export default class WysiwygModelConvertorState {
   constructor(schema, nodeHandlers) {
     this.schema = schema;
-    this.stack = [{ type: schema.topNodeType, content: [] }];
-    this.marks = Mark.none;
     this.nodeHandlers = nodeHandlers;
+
+    this.resetStates();
   }
 
   top() {
@@ -120,5 +120,10 @@ export default class WysiwygModelConvertorState {
 
       event = walker.next();
     }
+  }
+
+  resetStates() {
+    this.stack = [{ type: this.schema.topNodeType, content: [] }];
+    this.marks = Mark.none;
   }
 }

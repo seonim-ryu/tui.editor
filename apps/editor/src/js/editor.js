@@ -31,6 +31,8 @@ import toMarkRenderer from './toMarkRenderer';
 import { invokePlugins, getPluginInfo } from './pluginHelper';
 import htmlSanitizer from './htmlSanitizer';
 
+import NewConvertor from './convertor/convertor';
+
 // markdown commands
 import mdBold from './markdownCommands/bold';
 import mdItalic from './markdownCommands/italic';
@@ -263,6 +265,8 @@ class ToastUIEditor {
     );
 
     this.wwEditor = new WysiwygEditor(this.layout.getWwEditorContainerEl());
+
+    this.newConvertor = new NewConvertor(this.wwEditor.getSchema());
 
     this.toMarkOptions = {
       gfm: true,
@@ -674,8 +678,7 @@ class ToastUIEditor {
       this.layout.switchToWYSIWYG();
 
       const mdNode = this.toastMark.getRootNode();
-      const schema = this.wwEditor.getSchema();
-      const wwModel = this.convertor.toWysiwygModel(mdNode, schema);
+      const wwModel = this.newConvertor.toWysiwygModel(mdNode);
 
       this.wwEditor.setValue(wwModel);
 
@@ -683,10 +686,11 @@ class ToastUIEditor {
     } else {
       this.layout.switchToMarkdown();
       this.mdEditor.resetState();
-      this.mdEditor.setValue(
-        this.convertor.toMarkdown(this.wwEditor.getValue(), this.toMarkOptions),
-        !isWithoutFocus
-      );
+
+      const wwModel = this.wwEditor.getModel();
+      const markdown = this.newConvertor.toMarkdown(wwModel);
+
+      this.mdEditor.setValue(markdown, !isWithoutFocus);
       this.getCodeMirror().refresh();
       this.eventManager.emit('changeModeToMarkdown');
     }
