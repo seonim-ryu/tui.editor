@@ -680,7 +680,7 @@ class ToastUIEditor {
       const mdNode = this.toastMark.getRootNode();
       const wwModel = this.newConvertor.toWysiwygModel(mdNode);
 
-      this.wwEditor.setValue(wwModel);
+      this.wwEditor.setModel(wwModel);
 
       this.eventManager.emit('changeModeToWysiwyg');
     } else {
