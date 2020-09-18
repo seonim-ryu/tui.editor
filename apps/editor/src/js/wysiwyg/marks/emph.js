@@ -2,32 +2,32 @@ import { toggleMark } from 'prosemirror-commands';
 
 import Mark from './mark';
 
-export class Strong extends Mark {
+export class Emph extends Mark {
   get name() {
-    return 'strong';
+    return 'emph';
   }
 
   get schema() {
     return {
-      parseDOM: [{ tag: 'b' }, { tag: 'strong' }],
+      parseDOM: [{ tag: 'i' }, { tag: 'em' }],
       toDOM() {
-        return ['strong'];
+        return ['em'];
       }
     };
   }
 
   keyMap({ schema }) {
-    return ['Mod-b', 'Mod-B'].reduce((keys, key) => {
+    return ['Mod-i', 'Mod-I'].reduce((keys, key) => {
       return {
         ...keys,
         ...{
-          [`${key}`]: toggleMark(schema.marks.strong)
+          [`${key}`]: toggleMark(schema.marks.emph)
         }
       };
     }, {});
   }
 
   commands({ schema }) {
-    return toggleMark(schema.marks.strong);
+    return toggleMark(schema.marks.emph);
   }
 }

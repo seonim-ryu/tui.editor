@@ -33,19 +33,13 @@ export default class ExtensionManager {
   keyMap(context) {
     return this.extensions
       .filter(({ keyMap }) => keyMap)
-      .reduce((allKeyMap, { name, keyMap, commands }) => {
-        let keyMapValue = {};
+      .map(extension => {
+        const keyMap = extension.keyMap.bind(extension);
 
-        if (typeof keyMap === 'string') {
-          keyMapValue[keyMap] = commands(context);
-        } else {
-          keyMapValue = keyMap(context, commands);
-        }
-
-        return {
-          ...allKeyMap,
-          [name]: keyMapValue
-        };
+        return keyMap(context);
+      })
+      .reduce((allKeyMap, keyMap) => {
+        return { ...allKeyMap, ...keyMap };
       }, {});
   }
 

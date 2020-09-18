@@ -147,20 +147,6 @@ export const basicSchema = {
   },
 
   marks: {
-    strong: {
-      parseDOM: [{ tag: 'b' }, { tag: 'strong' }],
-      toDOM() {
-        return ['strong'];
-      }
-    },
-
-    emph: {
-      parseDOM: [{ tag: 'i' }, { tag: 'em' }],
-      toDOM() {
-        return ['em'];
-      }
-    },
-
     link: {
       attrs: {
         href: {},

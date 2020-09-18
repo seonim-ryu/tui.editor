@@ -7,39 +7,41 @@ export class Heading extends Node {
     return 'heading';
   }
 
+  get levels() {
+    return [1, 2, 3, 4, 5, 6];
+  }
+
   get schema() {
+    const parseDOM = this.levels.map(level => {
+      return { tag: `h${level}`, attrs: { level } };
+    });
+
     return {
       attrs: { level: { default: 1 } },
       content: 'inline*',
       group: 'block',
       defining: true,
-      parseDOM: [
-        { tag: 'h1', attrs: { level: 1 } },
-        { tag: 'h2', attrs: { level: 2 } },
-        { tag: 'h3', attrs: { level: 3 } },
-        { tag: 'h4', attrs: { level: 4 } },
-        { tag: 'h5', attrs: { level: 5 } },
-        { tag: 'h6', attrs: { level: 6 } }
-      ],
+      parseDOM,
       toDOM(node) {
         return [`h${node.attrs.level}`, 0];
       }
     };
   }
 
-  keyMap(context, commands) {
-    const keyMap = {};
-
-    for (let level = 1; level <= 6; level += 1) {
-      keyMap[`Shift-Ctrl-${level}`] = commands(context, { level });
-    }
-
-    return keyMap;
-  }
-
-  commands({ schema }, attrs) {
+  keyMap({ schema }) {
     const nodeType = schema.nodes.heading;
 
-    return setBlockType(nodeType, attrs);
+    return this.levels.reduce((keys, level) => {
+      return {
+        ...keys,
+        ...{
+          [`Shift-Ctrl-${level}`]: setBlockType(nodeType, { level })
+        }
+      };
+    }, {});
+  }
+
+  commands({ schema }) {
+    return attrs => setBlockType(schema.nodes.heading, attrs);
   }
 }

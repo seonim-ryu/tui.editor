@@ -14,10 +14,12 @@ import { Doc } from './nodes/doc';
 import { Paragraph } from './nodes/paragraph';
 import { Heading } from './nodes/heading';
 import { Strong } from './marks/strong';
+import { Emph } from './marks/emph';
+import { Strike } from './marks/strike';
 
 // plugin
 import { stylingContainer } from './plugins/stylingContainer';
-import { getExtensionsKeyMap, getHistoryKeyMap } from './plugins/helper/keyMapHelper';
+import { getHistoryKeyMap } from './plugins/helper/keyMapHelper';
 
 import ExtensionManager from '../extension';
 
@@ -39,17 +41,24 @@ export default class WysiwygEditor {
   }
 
   createExtension() {
-    return new ExtensionManager([new Doc(), new Paragraph(), new Heading(), new Strong()]);
+    return new ExtensionManager([
+      new Doc(),
+      new Paragraph(),
+      new Heading(),
+      new Strong(),
+      new Emph(),
+      new Strike()
+    ]);
   }
 
   createKeyMap() {
-    const keyMap = this.extension.keyMap({
+    const extensionsKeyMap = this.extension.keyMap({
       schema: this.schema
     });
 
     return {
       ...baseKeymap,
-      ...getExtensionsKeyMap(keyMap),
+      ...extensionsKeyMap,
       ...getHistoryKeyMap()
     };
   }
@@ -80,7 +89,10 @@ export default class WysiwygEditor {
 
   createView() {
     return new EditorView(this.el, {
-      state: this.state
+      state: this.state,
+      handleKeyDown: (_, ev) => {
+        console.log(ev);
+      }
     });
   }
 
