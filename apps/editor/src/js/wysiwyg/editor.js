@@ -31,6 +31,9 @@ export default class WysiwygEditor {
     return new EditorView(container, { state });
   }
 
+  /**
+   * @TODO change name from value to model
+   */
   setValue(doc) {
     const addedStates = { doc };
     const newState = EditorState.create({ ...baseStates, ...addedStates });
@@ -44,10 +47,14 @@ export default class WysiwygEditor {
   setMinHeight() {}
 
   /**
-   * @TODO change return value to prosemirror model
+   * @TODO change name from value to model
    */
   getValue() {
     return '';
+  }
+
+  getModel() {
+    return this.view.state.doc;
   }
 
   getSchema() {

@@ -50,10 +50,6 @@ const gfmSchema = {
     table: {
       content: 'tableHead{1} tableBody+',
       group: 'block',
-      attrs: {
-        rows: { default: 1 },
-        columns: { default: 1 }
-      },
       parseDOM: [{ tag: 'table' }],
       toDOM() {
         return ['table', 0];
@@ -62,25 +58,7 @@ const gfmSchema = {
 
     tableHead: {
       content: 'tableRow{1}',
-      attr: {
-        colums: { default: 1 }
-      },
-      parseDOM: [
-        {
-          tag: 'thead',
-          getAttrs(dom) {
-            const row = dom.querySelector('tr');
-
-            if (row && !row.children.length) {
-              return false;
-            }
-
-            return {
-              columns: row.children.length
-            };
-          }
-        }
-      ],
+      parseDOM: [{ tag: 'thead' }],
       toDOM() {
         return ['thead', 0];
       }
@@ -88,9 +66,9 @@ const gfmSchema = {
 
     tableBody: {
       content: 'tableRow+',
-      attr: {
+      attrs: {
         rows: { default: 1 },
-        colums: { default: 1 }
+        columns: { default: 1 }
       },
       parseDOM: [
         {

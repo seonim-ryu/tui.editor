@@ -1,6 +1,3 @@
-import WysiwygModelConvertorState from './wysiwygModelConvertorState';
-import { nodeMap } from './nodeMap';
-
 function getAttrs(spec, node) {
   let attributes;
 
@@ -19,7 +16,7 @@ function getTextWithoutTrailingNewline(str) {
   return str[str.length - 1] === '\n' ? str.slice(0, str.length - 1) : str;
 }
 
-function createNodeHandlers(schema, nodeTypes) {
+export function createNodeHandlers(schema, nodeTypes) {
   const handlers = {};
 
   Object.keys(nodeTypes).forEach(type => {
@@ -81,17 +78,52 @@ function createNodeHandlers(schema, nodeTypes) {
   return handlers;
 }
 
-export function convertMdNodeToDoc(schema, mdNode) {
-  const handlers = createNodeHandlers(schema, nodeMap);
-  const state = new WysiwygModelConvertorState(schema, handlers);
+export function backticksFor(node, side) {
+  const ticks = /`+/g;
+  let len = 0;
 
-  state.convertNodes(mdNode);
+  if (node.isText) {
+    let m = ticks.exec(node.text);
 
-  let doc;
+    while (m) {
+      len = Math.max(len, m[0].length);
+      m = ticks.exec(node.text);
+    }
+  }
 
-  do {
-    doc = state.closeNode();
-  } while (state.stack.length);
+  let result = len > 0 && side > 0 ? ' `' : '`';
 
-  return doc;
+  for (let i = 0; i < len; i += 1) {
+    result += '`';
+  }
+
+  if (len > 0 && side < 0) {
+    result += ' ';
+  }
+
+  return result;
+}
+
+export function isPlainURL(link, parent, index, side) {
+  if (link.attrs.title || !/^\w+:/.test(link.attrs.href)) {
+    return false;
+  }
+
+  const content = parent.child(index + (side < 0 ? -1 : 0));
+
+  if (
+    !content.isText ||
+    content.text !== link.attrs.href ||
+    content.marks[content.marks.length - 1] !== link
+  ) {
+    return false;
+  }
+
+  if (index === (side < 0 ? 1 : parent.childCount - 1)) {
+    return true;
+  }
+
+  const next = parent.child(index + (side < 0 ? -2 : 1));
+
+  return !link.isInSet(next.marks);
 }
